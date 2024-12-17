@@ -135,17 +135,96 @@
             font-weight: bold;
             cursor: pointer;
         }
+
+        /* Step Container */
+.step-container {
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* Step Indicators */
+.steps {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.step {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.step.active {
+    background-color: #2c7be5;
+}
+
+/* Step Content */
+.step-content {
+    display: none;
+}
+
+.step-content.active {
+    display: block;
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #2c7be5;
+}
     </style>
 </head>
 <body>
     <!-- User Type Selection Page -->
-    <div id="userTypeSelection" class="container">
-        <h2 style="color: #2c7be5; margin-bottom: 20px;">Select User Type</h2>
-        <button onclick="showLoginPage('doctor')" class="btn">Doctor</button>
-        <button onclick="showLoginPage('patient')" class="btn">Patient</button>
-        <button onclick="showLoginPage('family')" class="btn">Family</button>
-        <button onclick="showLoginPage('other')" class="btn">Other</button>
+    <div id="stepContainer" class="step-container">
+        <!-- Step Indicators -->
+        <div class="steps">
+            <div class="step active" id="step1Indicator">1</div>
+            <div class="step" id="step2Indicator">2</div>
+            <div class="step" id="step3Indicator">3</div>
+        </div>
+    
+        <!-- Step 1: Select User Type -->
+        <div id="step1" class="step-content active">
+            <h2>Select User Type</h2>
+            <button onclick="nextStep('step1', 'step2', 'Doctor')" class="btn">Doctor</button>
+            <button onclick="nextStep('step1', 'step2', 'Patient')" class="btn">Patient</button>
+            <button onclick="nextStep('step1', 'step2', 'Family')" class="btn">Family</button>
+            <button onclick="nextStep('step1', 'step2', 'Other')" class="btn">Other</button>
+        </div>
+    
+        <!-- Step 2: Login Information -->
+        <div id="step2" class="step-content" style="display: none;">
+            <h2>Enter Your Information</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" class="form-control" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="Password" required>
+                </div>
+                <button type="button" onclick="nextStep('step2', 'step3')" class="btn">Next</button>
+            </form>
+        </div>
+    
+        <!-- Step 3: Confirmation -->
+        <div id="step3" class="step-content" style="display: none;">
+            <h2>Confirm Registration</h2>
+            <p>Thank you for providing your details. Click below to confirm.</p>
+            <button type="button" onclick="submitForm()" class="btn">Confirm</button>
+        </div>
     </div>
+    
 
     <!-- Login Page -->
     <div id="loginPage" style="display: none;" class="container">
@@ -389,6 +468,40 @@
             const supportSection = document.getElementById('supportSection');
             supportSection.style.display = supportSection.style.display === 'none' ? 'block' : 'none';
         }
+
+        let selectedUserType = ''; // Global variable to store the user type
+
+function nextStep(currentStepId, nextStepId, userType = '') {
+    // Save the user type if provided (Step 1 to Step 2 transition)
+    if (userType) {
+        selectedUserType = userType;
+    }
+
+    // Hide the current step
+    document.getElementById(currentStepId).style.display = 'none';
+
+    // Show the next step
+    document.getElementById(nextStepId).style.display = 'block';
+
+    // Update the step indicator
+    document.getElementById(currentStepId + 'Indicator').classList.remove('active');
+    document.getElementById(nextStepId + 'Indicator').classList.add('active');
+}
+function submitForm() {
+
+    // Hide the step container
+    document.getElementById('stepContainer').style.display = 'none';
+
+    // Show the appropriate dashboard
+    const dashboardId = `${selectedUserType.toLowerCase()}Dashboard`;
+    const dashboardElement = document.getElementById(dashboardId);
+
+    if (dashboardElement) {
+        dashboardElement.style.display = 'block';
+    } else {
+        alert('Dashboard not found for user type: ' + selectedUserType);
+    }
+}
 
         // Add event listener for login form
         document.getElementById('loginForm').addEventListener('submit', login);
