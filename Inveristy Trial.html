@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Dashboard</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #e6f2ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Container Styles */
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background-color: #2c7be5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #1a5ec7;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .announcement-board {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            background-color: #f1f5f9;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .list-item {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .list-item:hover {
+            background-color: #f1f5f9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            padding-top: 50px;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- User Type Selection Page -->
+    <div id="userTypeSelection" class="container">
+        <h2 style="color: #2c7be5; margin-bottom: 20px;">Select User Type</h2>
+        <button onclick="showLoginPage('doctor')" class="btn">Doctor</button>
+        <button onclick="showLoginPage('patient')" class="btn">Patient</button>
+        <button onclick="showLoginPage('family')" class="btn">Family</button>
+        <button onclick="showLoginPage('other')" class="btn">Other</button>
+    </div>
+
+    <!-- Login Page -->
+    <div id="loginPage" style="display: none;" class="container">
+        <h2 id="loginTitle" style="color: #2c7be5; margin-bottom: 20px;">Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <input type="text" id="fullName" class="form-control" placeholder="Full Name" required>
+            </div>
+            <div class="form-group">
+                <input type="email" id="email" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" class="form-control" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+            <button type="button" onclick="showSignUpPage()" class="btn btn-secondary">Sign Up</button>
+            <button type="button" onclick="goBack()" class="btn btn-secondary">Back</button>
+        </form>
+    </div>
+
+    <!-- Doctor Dashboard -->
+    <div id="doctorDashboard" style="display: none;" class="dashboard">
+        <div class="announcement-board">
+            <h2>Announcements</h2>
+            <div id="announcementContent"></div>
+        </div>
+
+        <div class="section">
+            <h3>Total Patients: <span id="totalPatients">2</span></h3>
+            <button onclick="togglePatientList()" class="btn">Patients</button>
+            <div id="patientList" style="display: none;">
+                <div class="list-item" onclick="showPatientDetails('John Doe')">John Doe</div>
+                <div class="list-item" onclick="showPatientDetails('Jane Smith')">Jane Smith</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button onclick="toggleTimetable()" class="btn">Timetable</button>
+            <div id="timetable" style="display: none;">
+                <div class="list-item">9:00 AM - John Doe Consultation</div>
+                <div class="list-item">2:00 PM - Jane Smith Follow-up</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Make Announcement</h3>
+            <textarea id="announcementText" class="form-control" placeholder="Type your announcement"></textarea>
+            <button onclick="postAnnouncement()" class="btn">Post Announcement</button>
+        </div>
+
+        <button onclick="logout()" class="btn btn-secondary">Logout</button>
+    </div>
+
+    <!-- Patient Dashboard -->
+    <div id="patientDashboard" style="display: none;" class="dashboard">
+        <div class="announcement-board">
+            <h2>Announcements</h2>
+            <div id="patientAnnouncementContent"></div>
+        </div>
+
+        <div class="section">
+            <h3>Ask My Doctor</h3>
+            <textarea id="patientMessage" class="form-control" placeholder="Type your message to the doctor"></textarea>
+            <button onclick="sendMessage()" class="btn">Send Message</button>
+        </div>
+
+        <div class="section">
+            <button onclick="toggleFAQ()" class="btn">FAQ</button>
+            <div id="faqSection" style="display: none;">
+                <div class="list-item">
+                    <strong>How do I schedule an appointment?</strong>
+                    <p>Contact your doctor's office during business hours.</p>
+                </div>
+                <div class="list-item">
+                    <strong>What should I bring to my consultation?</strong>
+                    <p>Bring your ID, insurance card, and list of current medications.</p>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="logout()" class="btn btn-secondary">Logout</button>
+    </div>
+
+    <!-- Family Dashboard -->
+    <div id="familyDashboard" style="display: none;" class="dashboard">
+        <div class="section">
+            <h3>Add Family Member</h3>
+            <input type="text" id="familyMemberName" class="form-control" placeholder="Family Member Name">
+            <button onclick="addFamilyMember()" class="btn">Add Member</button>
+        </div>
+
+        <div class="section">
+            <h3>Family Updates</h3>
+            <div id="familyUpdatesList"></div>
+        </div>
+
+        <div class="section">
+            <button onclick="toggleSupport()" class="btn">Support Resources</button>
+            <div id="supportSection" style="display: none;">
+                <div class="list-item">
+                    <a href="#" class="btn">Mental Health Helpline</a>
+                </div>
+                <div class="list-item">
+                    <a href="#" class="btn">Family Support Groups</a>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="logout()" class="btn btn-secondary">Logout</button>
+    </div>
+
+    <!-- Other Dashboard -->
+    <div id="otherDashboard" style="display: none;" class="dashboard">
+        <div class="announcement-board">
+            <h2>Announcements</h2>
+            <div id="otherAnnouncementContent"></div>
+        </div>
+
+        <div class="section">
+            <button onclick="toggleFAQ()" class="btn">FAQ</button>
+            <div id="otherFaqSection" style="display: none;">
+                <div class="list-item">
+                    <strong>General Healthcare Question</strong>
+                    <p>More information about general healthcare.</p>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="logout()" class="btn btn-secondary">Logout</button>
+    </div>
+
+    <!-- Patient Details Modal -->
+    <div id="patientDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePatientDetailsModal()">&times;</span>
+            <h2 id="patientDetailsName"></h2>
+            <div id="patientDetailsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUserType = '';
+
+        function showLoginPage(userType) {
+            document.getElementById('userTypeSelection').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+            document.getElementById('loginTitle').innerText = `${userType.charAt(0).toUpperCase() + userType.slice(1)} Login`;
+            currentUserType = userType;
+        }
+
+        function showSignUpPage() {
+            // Implement sign-up logic
+            alert('Sign Up functionality to be implemented');
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const dashboardId = `${currentUserType}Dashboard`;
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById(dashboardId).style.display = 'block';
+        }
+
+        function goBack() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('userTypeSelection').style.display = 'block';
+        }
+
+        function logout() {
+            // Hide all dashboards
+            ['doctorDashboard', 'patientDashboard', 'familyDashboard', 'otherDashboard'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            document.getElementById('userTypeSelection').style.display = 'block';
+        }
+
+        function togglePatientList() {
+            const patientList = document.getElementById('patientList');
+            patientList.style.display = patientList.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleTimetable() {
+            const timetable = document.getElementById('timetable');
+            timetable.style.display = timetable.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function showPatientDetails(name) {
+            const modal = document.getElementById('patientDetailsModal');
+            const nameElement = document.getElementById('patientDetailsName');
+            const contentElement = document.getElementById('patientDetailsContent');
+
+            nameElement.innerText = name;
+            contentElement.innerHTML = `
+                <p><strong>Age:</strong> 35</p>
+                <p><strong>Blood Type:</strong> A+</p>
+                <p><strong>Recent Visits:</strong> 2 consultations</p>
+                <p><strong>Medications:</strong> None</p>
+            `;
+            modal.style.display = 'block';
+        }
+
+        function closePatientDetailsModal() {
+            document.getElementById('patientDetailsModal').style.display = 'none';
+        }
+
+        function postAnnouncement() {
+            const announcementText = document.getElementById('announcementText').value;
+            if (announcementText) {
+                const announcementContent = document.getElementById('announcementContent');
+                announcementContent.innerHTML += `<p>${announcementText}</p>`;
+                document.getElementById('announcementText').value = '';
+            }
+        }
+
+        function toggleFAQ() {
+            const faqSection = document.getElementById('faqSection') || document.getElementById('otherFaqSection');
+            faqSection.style.display = faqSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function sendMessage() {
+            const message = document.getElementById('patientMessage').value;
+            if (message) {
+                alert('Message sent to doctor');
+                document.getElementById('patientMessage').value = '';
+            }
+        }
+
+        function addFamilyMember() {
+            const memberName = document.getElementById('familyMemberName').value;
+            if (memberName) {
+                const updatesList = document.getElementById('familyUpdatesList');
+                updatesList.innerHTML += `
+                    <div class="list-item">
+                        ${memberName} - No recent updates
+                    </div>
+                `;
+                document.getElementById('familyMemberName').value = '';
+            }
+        }
+
+        function toggleSupport() {
+            const supportSection = document.getElementById('supportSection');
+            supportSection.style.display = supportSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Add event listener for login form
+        document.getElementById('loginForm').addEventListener('submit', login);
+    </script>
+</body>
+</html>
